@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">MortgageIQ Agent Swarm Architecture</title>
+  <desc id="desc">Architecture diagram showing the Next.js chat UI, API route, supervisor agent, specialist agents, tools, compliance review, and response path.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#31516c" />
+    </marker>
+    <style>
+      .bg { fill: #f3f7fb; }
+      .panel { fill: #ffffff; stroke: #cbddeb; stroke-width: 2; }
+      .primary { fill: #0055a6; stroke: #003d78; stroke-width: 2; }
+      .accent { fill: #fff8f1; stroke: #f5cfaa; stroke-width: 2; }
+      .tool { fill: #f8fbfe; stroke: #8db8dc; stroke-width: 2; }
+      .text { fill: #1b3448; font-family: Inter, Arial, sans-serif; font-size: 18px; }
+      .small { fill: #45647d; font-family: Inter, Arial, sans-serif; font-size: 14px; }
+      .white { fill: #ffffff; font-family: Inter, Arial, sans-serif; font-size: 18px; font-weight: 700; }
+      .label { fill: #003d78; font-family: Inter, Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .title { fill: #003d78; font-family: Inter, Arial, sans-serif; font-size: 30px; font-weight: 800; }
+      .line { stroke: #31516c; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #a95508; stroke-width: 2.5; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="820" rx="0" />
+  <text class="title" x="56" y="58">MortgageIQ Agent Swarm Architecture</text>
+  <text class="small" x="58" y="84">Next.js chatbot + Mastra supervisor + specialist agents + compliance gate</text>
+
+  <rect class="panel" x="54" y="126" width="214" height="96" rx="10" />
+  <text class="label" x="84" y="164">Chat UI</text>
+  <text class="small" x="84" y="188">app/page.tsx</text>
+  <text class="small" x="84" y="207">Messages + badges</text>
+
+  <rect class="panel" x="330" y="126" width="230" height="96" rx="10" />
+  <text class="label" x="360" y="164">Chat API</text>
+  <text class="small" x="360" y="188">POST /api/chat</text>
+  <text class="small" x="360" y="207">Validates request</text>
+
+  <rect class="primary" x="626" y="120" width="250" height="108" rx="12" />
+  <text class="white" x="662" y="162">Supervisor Agent</text>
+  <text class="white" x="662" y="188">Routes + quality gate</text>
+  <text class="white" x="662" y="211">llama-3.3-70b</text>
+
+  <path class="line" d="M268 174 H326" />
+  <path class="line" d="M560 174 H622" />
+
+  <rect class="panel" x="60" y="318" width="232" height="112" rx="10" />
+  <text class="label" x="92" y="356">FAQ Agent</text>
+  <text class="small" x="92" y="382">Product and education</text>
+  <text class="small" x="92" y="404">RAG-only answers</text>
+
+  <rect class="panel" x="342" y="318" width="232" height="112" rx="10" />
+  <text class="label" x="374" y="356">Calculator Agent</text>
+  <text class="small" x="374" y="382">Repayments, LVR</text>
+  <text class="small" x="374" y="404">Borrowing capacity</text>
+
+  <rect class="panel" x="624" y="318" width="232" height="112" rx="10" />
+  <text class="label" x="656" y="356">Eligibility Agent</text>
+  <text class="small" x="656" y="382">Income, deposit</text>
+  <text class="small" x="656" y="404">Basic scenario checks</text>
+
+  <rect class="accent" x="906" y="318" width="232" height="112" rx="10" />
+  <text class="label" x="938" y="356">Human Escalation</text>
+  <text class="small" x="938" y="382">Hardship, SMSF</text>
+  <text class="small" x="938" y="404">Complex credit cases</text>
+
+  <path class="line" d="M710 228 C670 274 245 270 176 314" />
+  <path class="line" d="M730 228 C690 274 505 270 458 314" />
+  <path class="line" d="M772 228 C810 274 762 270 740 314" />
+  <path class="dash" d="M820 228 C900 272 986 270 1022 314" />
+
+  <rect class="tool" x="60" y="528" width="232" height="112" rx="10" />
+  <text class="label" x="92" y="566">RAG Search Tool</text>
+  <text class="small" x="92" y="592">HNSWLib vector store</text>
+  <text class="small" x="92" y="614">Mortgage House KB</text>
+
+  <rect class="tool" x="342" y="528" width="232" height="112" rx="10" />
+  <text class="label" x="374" y="566">Calculator Tools</text>
+  <text class="small" x="374" y="592">Repayment calculator</text>
+  <text class="small" x="374" y="614">LVR + borrowing</text>
+
+  <rect class="tool" x="624" y="528" width="232" height="112" rx="10" />
+  <text class="label" x="656" y="566">Eligibility Tool</text>
+  <text class="small" x="656" y="592">Rules-based checks</text>
+  <text class="small" x="656" y="614">Human review flags</text>
+
+  <path class="line" d="M176 430 V524" />
+  <path class="line" d="M458 430 V524" />
+  <path class="line" d="M740 430 V524" />
+
+  <rect class="primary" x="424" y="704" width="352" height="78" rx="12" />
+  <text class="white" x="470" y="735">Compliance Review Agent</text>
+  <text class="white" x="470" y="761">NCCP, responsible lending, DDO</text>
+
+  <path class="line" d="M176 640 C210 696 375 734 420 742" />
+  <path class="line" d="M458 640 C470 684 520 704 556 704" />
+  <path class="line" d="M740 640 C720 686 682 704 644 704" />
+  <path class="line" d="M906 386 C842 474 780 637 720 700" />
+
+  <path class="line" d="M424 742 C330 728 212 646 168 430" />
+  <text class="small" x="98" y="690">Final response returns to API, then UI</text>
+
+  <rect class="panel" x="906" y="528" width="232" height="112" rx="10" />
+  <text class="label" x="938" y="566">Workflow Variant</text>
+  <text class="small" x="938" y="592">loanEnquiryWorkflow</text>
+  <text class="small" x="938" y="614">Classify, HITL, review</text>
+  <path class="dash" d="M906 584 H860" />
+</svg>
