@@ -16,10 +16,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    // Conversation history: everything before the latest user message
-    const history = messages
+    // Conversation history: last 10 turns before the latest user message (guards context window limits)
+    const allPrior = messages
       .slice(0, messages.lastIndexOf(latestUserMessage))
       .filter((m): m is ChatMessage => m.role === 'user' || m.role === 'assistant')
+    const history = allPrior.slice(-10)
 
     const run = loanEnquiryWorkflow.createRun()
     const result = await run.start({
@@ -29,17 +30,11 @@ export async function POST(request: Request) {
       },
     })
 
-    if (result.status === 'failed') {
-      console.error('Workflow failed:', result.error)
+    // hitlGate never calls suspend() — escalation is handled synchronously by
+    // runSpecialist returning approved:false. 'suspended' status is not reachable.
+    if (result.status === 'failed' || result.status === 'suspended') {
+      console.error('Workflow did not succeed:', result.status === 'failed' ? result.error : 'suspended')
       return NextResponse.json({ error: 'Unable to process message' }, { status: 500 })
-    }
-
-    if (result.status === 'suspended') {
-      // HITL suspension reached — return the escalation message directly
-      return new Response(
-        `This query requires personalised advice from a Mortgage House broker. Please call 133 144 or visit mortgagehouse.com.au.\n__META__${JSON.stringify({ toolCalls: ['escalate_to_human'] })}`,
-        { headers: { 'Content-Type': 'text/plain; charset=utf-8' } },
-      )
     }
 
     const { finalResponse, agentUsed } = result.result

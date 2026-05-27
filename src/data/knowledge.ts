@@ -331,10 +331,9 @@ export const knowledgeBase: KnowledgeEntry[] = [
     category: 'faq',
     title: 'Business Loans — Outside Mortgage House Scope',
     content:
-      'Mortgage House specialises in residential home loans — such as owner-occupier, investment, refinance, construction, and first home buyer loans. ' +
-      'Business loans, commercial finance, equipment finance, and unsecured business lending are outside our product range. ' +
-      'If you need business finance, we recommend speaking with a commercial lender or business finance broker. ' +
-      'For home loan enquiries related to your situation as a business owner or self-employed borrower, a Mortgage House broker can help — call 133 144.',
+      'Mortgage House is a residential lender — business loans, commercial finance, equipment finance, and unsecured business lending are outside our product range. ' +
+      'For business finance, we recommend speaking with a commercial lender or business finance broker. ' +
+      'Self-employed borrowers seeking residential finance can speak with a Mortgage House broker on 133 144.',
     keywords: [
       'business loan', 'business finance', 'commercial loan', 'commercial finance',
       'equipment finance', 'working capital', 'business lending', 'sme loan',

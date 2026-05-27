@@ -163,16 +163,22 @@ const supervisorReview = createStep({
       `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${inputData.response}`
     )
 
-    const compliancePass = review.text.toUpperCase().includes('COMPLIANT')
-
-    // Extract only the response body — strip the COMPLIANT marker and any
-    // trailing "Note:" / explanation lines the model may have appended
+    // First line must be exactly "COMPLIANT" — "NON-COMPLIANT".includes("COMPLIANT") is true,
+    // so substring search is not safe here.
     const lines = review.text.split('\n')
-    const compliantIdx = lines.findIndex((l) => /^COMPLIANT\s*$/i.test(l.trim()))
-    const bodyLines = compliantIdx >= 0 ? lines.slice(compliantIdx + 1) : lines
+    const firstLine = lines[0].trim()
+    const compliancePass = /^COMPLIANT$/i.test(firstLine)
+
+    // Extract only the response body — skip the COMPLIANT/NON-COMPLIANT marker line and
+    // drop any trailing "Note:" explanation the model may have appended.
+    const bodyLines = lines.slice(1)
     const noteStart = bodyLines.findIndex((l) => /^note:/i.test(l.trim()))
     const cleanLines = noteStart >= 0 ? bodyLines.slice(0, noteStart) : bodyLines
     const cleanedResponse = cleanLines.join('\n').trim()
+
+    if (!compliancePass) {
+      console.warn('[compliance] Agent did not return COMPLIANT — falling back to original response')
+    }
 
     return {
       finalResponse: cleanedResponse || inputData.response,
