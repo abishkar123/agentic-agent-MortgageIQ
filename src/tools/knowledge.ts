@@ -60,9 +60,11 @@ export const knowledgeSearchTool = createTool({
     const queryKeywords = extractKeywords(context.query)
     const topK = context.topK ?? 3
 
+    const MIN_SCORE = 3
+
     const scored = knowledgeBase
       .map((entry) => ({ entry, score: scoreEntry(entry, queryKeywords, context.query) }))
-      .filter(({ score }) => score > 0)
+      .filter(({ score }) => score >= MIN_SCORE)
       .sort((a, b) => b.score - a.score)
       .slice(0, topK)
 
