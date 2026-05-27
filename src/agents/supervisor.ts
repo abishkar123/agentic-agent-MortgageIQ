@@ -79,6 +79,7 @@ const escalateToHuman = createTool({
 })
 
 export const supervisorAgent = new Agent({
+  id: 'supervisorAgent',
   name: 'supervisorAgent',
   instructions: `You are the MortgageIQ supervisor agent for Mortgage House Australia.
 

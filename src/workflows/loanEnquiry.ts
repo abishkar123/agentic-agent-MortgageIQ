@@ -102,8 +102,11 @@ const runSpecialist = createStep({
       }
     }
 
-    // Build the message array: history + current user query
-    const messages = [
+    // Build the message array: history + current user query.
+    // Cast to any[] — Mastra 1.x's MessageListInput union is too broad for
+    // TypeScript to narrow a plain { role, content }[] against it, but the
+    // runtime MessageList constructor accepts this shape correctly.
+    const messages: any[] = [
       ...inputData.history.map((m) => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,

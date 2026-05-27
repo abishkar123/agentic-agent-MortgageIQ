@@ -5,6 +5,7 @@ import { repaymentCalculatorTool, lvrCalculatorTool, borrowingCapacityTool } fro
 import { eligibilityCheckTool } from '../tools/eligibility'
 
 export const faqAgent = new Agent({
+  id: 'faqAgent',
   name: 'faqAgent',
   instructions: `You are a Mortgage House home loan specialist. Answer questions about home loan
 products, features, processes, eligibility concepts, and general home loan education.
@@ -26,6 +27,7 @@ Always end with a brief note: "For personalised advice, speak with a Mortgage Ho
 })
 
 export const calculatorAgent = new Agent({
+  id: 'calculatorAgent',
   name: 'calculatorAgent',
   instructions: `You are a mortgage calculator specialist. Help users understand their repayments,
 LVR, and borrowing capacity by calling the appropriate calculator tools.
@@ -40,6 +42,7 @@ Note that all figures are estimates — final rates depend on lender assessment.
 })
 
 export const eligibilityAgent = new Agent({
+  id: 'eligibilityAgent',
   name: 'eligibilityAgent',
   instructions: `You are a home loan eligibility specialist. Use the eligibility_check tool
 to assess whether a user might qualify for a home loan based on their circumstances.
@@ -54,6 +57,7 @@ Always close with: "These are indicative assessments only — speak with a Mortg
 })
 
 export const complianceAgent = new Agent({
+  id: 'complianceAgent',
   name: 'complianceAgent',
   instructions: `You are a financial services compliance reviewer for Mortgage House Australia.
 Check the response for: misleading credit claims (NCCP), approval guarantees or pressure tactics

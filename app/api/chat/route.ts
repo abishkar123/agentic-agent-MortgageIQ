@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       .filter((m): m is ChatMessage => m.role === 'user' || m.role === 'assistant')
     const history = allPrior.slice(-10)
 
-    const run = loanEnquiryWorkflow.createRun()
+    const run = await loanEnquiryWorkflow.createRun()
     const result = await run.start({
       inputData: {
         query: latestUserMessage.content,
@@ -31,13 +31,14 @@ export async function POST(request: Request) {
     })
 
     // hitlGate never calls suspend() — escalation is handled synchronously by
-    // runSpecialist returning approved:false. 'suspended' status is not reachable.
-    if (result.status === 'failed' || result.status === 'suspended') {
-      console.error('Workflow did not succeed:', result.status === 'failed' ? result.error : 'suspended')
+    // runSpecialist returning approved:false. 'suspended' and 'tripwire' statuses
+    // are not reachable in normal operation.
+    if (result.status !== 'success') {
+      console.error('Workflow did not succeed:', result.status)
       return NextResponse.json({ error: 'Unable to process message' }, { status: 500 })
     }
 
-    const { finalResponse, agentUsed } = result.result
+    const { finalResponse, agentUsed } = result.result as { finalResponse: string; agentUsed: string }
 
     // Map agentUsed back to tool call names for the UI badges
     const toolCallMap: Record<string, string> = {
