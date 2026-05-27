@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      mastra:
+        patterns:
+          - "@mastra/*"
+          - "mastra"
+      next-react:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+      dev-tooling:
+        patterns:
+          - "@types/*"
+          - "typescript"
+          - "tailwindcss"
+          - "postcss"
+          - "autoprefixer"
+          - "husky"
+          - "tsx"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
