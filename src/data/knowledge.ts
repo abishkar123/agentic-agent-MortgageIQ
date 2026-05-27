@@ -326,4 +326,20 @@ export const knowledgeBase: KnowledgeEntry[] = [
       'repayment frequency', 'weekly', 'fortnightly', 'monthly', 'pay fortnightly', 'pay faster', 'save interest frequency',
     ],
   },
+  {
+    id: 'contact-locations',
+    category: 'faq',
+    title: 'Mortgage House Contact and Locations',
+    content:
+      'Mortgage House is an Australian non-bank lender headquartered in Sydney, NSW, with brokers and offices across Australia in all major states and territories. ' +
+      'To find your nearest Mortgage House location or speak with a broker: ' +
+      'call 133 144 (Mon–Fri 8am–7pm, Sat 9am–5pm AEST), ' +
+      'visit mortgagehouse.com.au/find-a-broker, or email info@mortgagehouse.com.au. ' +
+      'You can also request a callback online at mortgagehouse.com.au.',
+    keywords: [
+      'location', 'locations', 'office', 'offices', 'branch', 'branches',
+      'where', 'address', 'contact', 'phone number', 'email', 'find a broker',
+      'nearest', 'near me', 'sydney', 'headquarters', 'open hours', 'trading hours',
+    ],
+  },
 ]

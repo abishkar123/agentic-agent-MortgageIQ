@@ -165,10 +165,14 @@ const supervisorReview = createStep({
 
     const compliancePass = review.text.toUpperCase().includes('COMPLIANT')
 
-    // Strip the leading "COMPLIANT" marker from the response text
-    const cleanedResponse = review.text
-      .replace(/^COMPLIANT\s*/i, '')
-      .trim()
+    // Extract only the response body — strip the COMPLIANT marker and any
+    // trailing "Note:" / explanation lines the model may have appended
+    const lines = review.text.split('\n')
+    const compliantIdx = lines.findIndex((l) => /^COMPLIANT\s*$/i.test(l.trim()))
+    const bodyLines = compliantIdx >= 0 ? lines.slice(compliantIdx + 1) : lines
+    const noteStart = bodyLines.findIndex((l) => /^note:/i.test(l.trim()))
+    const cleanLines = noteStart >= 0 ? bodyLines.slice(0, noteStart) : bodyLines
+    const cleanedResponse = cleanLines.join('\n').trim()
 
     return {
       finalResponse: cleanedResponse || inputData.response,
