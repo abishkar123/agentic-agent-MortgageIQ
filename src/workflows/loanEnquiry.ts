@@ -1,7 +1,6 @@
 import { createWorkflow, createStep } from '@mastra/core/workflows'
 import { z } from 'zod'
-import { supervisorAgent } from '../agents/supervisor'
-import { faqAgent, calculatorAgent, eligibilityAgent } from '../agents/specialists'
+import { faqAgent, calculatorAgent, eligibilityAgent, complianceAgent } from '../agents/specialists'
 
 const HITL_TRIGGERS = [
   'hardship', 'bankruptcy', 'default', 'smsf', 'non-resident',
@@ -160,8 +159,8 @@ const supervisorReview = createStep({
       }
     }
 
-    const review = await supervisorAgent.generate(
-      `compliance_review only: "${inputData.response}"`
+    const review = await complianceAgent.generate(
+      `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${inputData.response}`
     )
 
     const compliancePass = review.text.toUpperCase().includes('COMPLIANT')
