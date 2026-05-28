@@ -13,7 +13,7 @@ const delegateToFaq = createTool({
     query: z.string().describe('The user question to pass to the FAQ agent'),
   }),
   execute: async ({ context }) => {
-    const result = await faqAgent.generate(context.query)
+    const result = await faqAgent.generateLegacy(context.query)
     return { response: result.text, agent: 'faqAgent' }
   },
 })
@@ -26,7 +26,7 @@ const delegateToCalculator = createTool({
     query: z.string().describe('The calculation request with all required numbers'),
   }),
   execute: async ({ context }) => {
-    const result = await calculatorAgent.generate(context.query)
+    const result = await calculatorAgent.generateLegacy(context.query)
     return { response: result.text, agent: 'calculatorAgent' }
   },
 })
@@ -39,7 +39,7 @@ const delegateToEligibility = createTool({
     query: z.string().describe('The eligibility question with user details'),
   }),
   execute: async ({ context }) => {
-    const result = await eligibilityAgent.generate(context.query)
+    const result = await eligibilityAgent.generateLegacy(context.query)
     return { response: result.text, agent: 'eligibilityAgent' }
   },
 })
@@ -52,7 +52,7 @@ const complianceReviewTool = createTool({
     responseText: z.string().describe('The response text to review for compliance'),
   }),
   execute: async ({ context }) => {
-    const result = await complianceAgent.generate(
+    const result = await complianceAgent.generateLegacy(
       `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${context.responseText}`
     )
     return { reviewedResponse: result.text, agent: 'complianceAgent' }

@@ -116,8 +116,8 @@ const runSpecialist = createStep({
 
     if (inputData.intent === 'multi') {
       const [calcResult, eligResult] = await Promise.all([
-        calculatorAgent.generate(messages),
-        eligibilityAgent.generate(messages),
+        calculatorAgent.generateLegacy(messages),
+        eligibilityAgent.generateLegacy(messages),
       ])
       return {
         response: `**Calculator:**\n${calcResult.text}\n\n**Eligibility:**\n${eligResult.text}`,
@@ -126,17 +126,17 @@ const runSpecialist = createStep({
     }
 
     if (inputData.intent === 'calculator') {
-      const result = await calculatorAgent.generate(messages)
+      const result = await calculatorAgent.generateLegacy(messages)
       return { response: result.text, agentUsed: 'calculatorAgent' }
     }
 
     if (inputData.intent === 'eligibility') {
-      const result = await eligibilityAgent.generate(messages)
+      const result = await eligibilityAgent.generateLegacy(messages)
       return { response: result.text, agentUsed: 'eligibilityAgent' }
     }
 
     // Default: FAQ
-    const result = await faqAgent.generate(messages)
+    const result = await faqAgent.generateLegacy(messages)
     return { response: result.text, agentUsed: 'faqAgent' }
   },
 })
@@ -162,7 +162,7 @@ const supervisorReview = createStep({
       }
     }
 
-    const review = await complianceAgent.generate(
+    const review = await complianceAgent.generateLegacy(
       `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${inputData.response}`
     )
 
