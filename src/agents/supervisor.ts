@@ -12,8 +12,8 @@ const delegateToFaq = createTool({
   inputSchema: z.object({
     query: z.string().describe('The user question to pass to the FAQ agent'),
   }),
-  execute: async ({ context }) => {
-    const result = await faqAgent.generateLegacy(context.query)
+  execute: async (inputData) => {
+    const result = await faqAgent.generateLegacy(inputData.query)
     return { response: result.text, agent: 'faqAgent' }
   },
 })
@@ -25,8 +25,8 @@ const delegateToCalculator = createTool({
   inputSchema: z.object({
     query: z.string().describe('The calculation request with all required numbers'),
   }),
-  execute: async ({ context }) => {
-    const result = await calculatorAgent.generateLegacy(context.query)
+  execute: async (inputData) => {
+    const result = await calculatorAgent.generateLegacy(inputData.query)
     return { response: result.text, agent: 'calculatorAgent' }
   },
 })
@@ -38,8 +38,8 @@ const delegateToEligibility = createTool({
   inputSchema: z.object({
     query: z.string().describe('The eligibility question with user details'),
   }),
-  execute: async ({ context }) => {
-    const result = await eligibilityAgent.generateLegacy(context.query)
+  execute: async (inputData) => {
+    const result = await eligibilityAgent.generateLegacy(inputData.query)
     return { response: result.text, agent: 'eligibilityAgent' }
   },
 })
@@ -51,9 +51,9 @@ const complianceReviewTool = createTool({
   inputSchema: z.object({
     responseText: z.string().describe('The response text to review for compliance'),
   }),
-  execute: async ({ context }) => {
+  execute: async (inputData) => {
     const result = await complianceAgent.generateLegacy(
-      `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${context.responseText}`
+      `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${inputData.responseText}`
     )
     return { reviewedResponse: result.text, agent: 'complianceAgent' }
   },
@@ -67,11 +67,11 @@ const escalateToHuman = createTool({
     reason: z.string().describe('Why this needs human review'),
     summary: z.string().describe('Summary of the user situation for the broker'),
   }),
-  execute: async ({ context }) => {
+  execute: async (inputData) => {
     return {
       escalated: true,
-      reason: context.reason,
-      brokerMessage: `A customer needs broker assistance: ${context.summary}. Reason: ${context.reason}`,
+      reason: inputData.reason,
+      brokerMessage: `A customer needs broker assistance: ${inputData.summary}. Reason: ${inputData.reason}`,
       userMessage:
         'This query needs personalised advice from a Mortgage House broker. Please call 133 144 or request a callback at mortgagehouse.com.au.',
     }

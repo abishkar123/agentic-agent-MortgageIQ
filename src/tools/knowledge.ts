@@ -56,14 +56,14 @@ export const knowledgeSearchTool = createTool({
     query: z.string().describe('The user question to search for'),
     topK: z.number().optional().default(3).describe('Number of results to return'),
   }),
-  execute: async ({ context }) => {
-    const queryKeywords = extractKeywords(context.query)
-    const topK = context.topK ?? 3
+  execute: async (inputData) => {
+    const queryKeywords = extractKeywords(inputData.query)
+    const topK = inputData.topK ?? 3
 
     const MIN_SCORE = 3
 
     const scored = knowledgeBase
-      .map((entry) => ({ entry, score: scoreEntry(entry, queryKeywords, context.query) }))
+      .map((entry) => ({ entry, score: scoreEntry(entry, queryKeywords, inputData.query) }))
       .filter(({ score }) => score >= MIN_SCORE)
       .sort((a, b) => b.score - a.score)
       .slice(0, topK)

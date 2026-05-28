@@ -11,8 +11,8 @@ export const repaymentCalculatorTool = createTool({
     termYears: z.number().describe('Loan term in years e.g. 30'),
     type: z.enum(['principal_and_interest', 'interest_only']).default('principal_and_interest'),
   }),
-  execute: async ({ context }) => {
-    const { principal, annualRate, termYears, type } = context
+  execute: async (inputData) => {
+    const { principal, annualRate, termYears, type } = inputData
     const r = annualRate / 100 / 12
     const n = termYears * 12
     const monthly =
@@ -35,8 +35,8 @@ export const lvrCalculatorTool = createTool({
     propertyValue: z.number().describe('Property value in AUD'),
     depositAmount: z.number().describe('Deposit amount in AUD'),
   }),
-  execute: async ({ context }) => {
-    const { propertyValue, depositAmount } = context
+  execute: async (inputData) => {
+    const { propertyValue, depositAmount } = inputData
     const loan = propertyValue - depositAmount
     const lvr = (loan / propertyValue) * 100
     return {
@@ -59,8 +59,8 @@ export const borrowingCapacityTool = createTool({
     annualRate: z.number().default(6.5).describe('Indicative interest rate'),
     termYears: z.number().default(30),
   }),
-  execute: async ({ context }) => {
-    const { grossAnnualIncome, monthlyDebts, monthlyLivingExpenses, annualRate, termYears } = context
+  execute: async (inputData) => {
+    const { grossAnnualIncome, monthlyDebts, monthlyLivingExpenses, annualRate, termYears } = inputData
     // APRA serviceability buffer: assess at rate + 3%
     const assessRate = annualRate + 3
     const r = assessRate / 100 / 12

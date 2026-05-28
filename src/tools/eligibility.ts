@@ -19,7 +19,7 @@ export const eligibilityCheckTool = createTool({
     isFirstHomeBuyer: z.boolean().default(false),
     australianResident: z.boolean().default(true),
   }),
-  execute: async ({ context }) => {
+  execute: async (inputData) => {
     const {
       grossAnnualIncome,
       depositAmount,
@@ -28,7 +28,7 @@ export const eligibilityCheckTool = createTool({
       creditIssues,
       isFirstHomeBuyer,
       australianResident,
-    } = context
+    } = inputData
 
     const checks: { rule: string; pass: boolean; note: string }[] = []
 
