@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { groq } from '@ai-sdk/groq'
 import { generateText } from 'ai'
-import { supervisorAgent } from '../agents/supervisor'
+import { orchestratorAgent } from '../agents/orchestrator'
 
 interface EvalCase {
   query: string
@@ -87,7 +87,7 @@ async function runHarness(): Promise<void> {
   for (const c of EVAL_CASES) {
     process.stdout.write(`Q: ${c.query.slice(0, 55)}...\n`)
 
-    const result = await supervisorAgent.generateLegacy(c.query)
+    const result = await orchestratorAgent.generateLegacy(c.query)
     const text = result.text
 
     // Check which tool was called (toolResults shape changed in ai v6 — use any)

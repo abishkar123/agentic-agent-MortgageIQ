@@ -60,7 +60,9 @@ export const borrowingCapacityTool = createTool({
     termYears: z.number().default(30),
   }),
   execute: async (inputData) => {
-    const { grossAnnualIncome, monthlyDebts, monthlyLivingExpenses, annualRate, termYears } = inputData
+    // Mastra types inputData as the schema's input shape, where .default() fields are
+    // optional — mirror the zod defaults here to satisfy the type checker
+    const { grossAnnualIncome, monthlyDebts, monthlyLivingExpenses, annualRate = 6.5, termYears = 30 } = inputData
     // APRA serviceability buffer: assess at rate + 3%
     const assessRate = annualRate + 3
     const r = assessRate / 100 / 12

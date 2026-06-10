@@ -1,11 +1,11 @@
 import { Mastra } from '@mastra/core'
-import { supervisorAgent } from '../agents/supervisor'
+import { orchestratorAgent } from '../agents/orchestrator'
 import { faqAgent, calculatorAgent, eligibilityAgent, complianceAgent } from '../agents/specialists'
 import { loanEnquiryWorkflow } from '../workflows/loanEnquiry'
 
 export const mastra = new Mastra({
   agents: {
-    supervisorAgent,
+    orchestratorAgent,
     faqAgent,
     calculatorAgent,
     eligibilityAgent,
