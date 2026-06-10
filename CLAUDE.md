@@ -28,8 +28,8 @@ POST /api/chat  (app/api/chat/route.ts)
   → if OPENAI_API_KEY set: orchestrator path (primary)
       orchestratorAgent.generateLegacy([...history, userMsg], { maxSteps: 8 })
         — OpenAI agent delegates via tools: delegate_to_faq / delegate_to_calculator /
-          delegate_to_eligibility / delegate_to_general / escalate_to_human
-          (each delegation wrapped in a circuit breaker)
+          delegate_to_eligibility / delegate_to_website / delegate_to_general /
+          escalate_to_human (each delegation wrapped in a circuit breaker)
       reviewCompliance(text)  — deterministic compliance gate (skipped for escalations
                                 and for general-only answers, which get no mortgage disclaimer)
   → else (or on orchestrator error): workflow fallback
@@ -45,6 +45,7 @@ POST /api/chat  (app/api/chat/route.ts)
 | `faqAgent` | Groq llama-3.3-70b-versatile | `knowledgeSearchTool` | Answers product/policy/education questions |
 | `calculatorAgent` | Groq llama-3.1-8b-instant | repayment, LVR, borrowing capacity tools | Numerical mortgage calculations |
 | `eligibilityAgent` | Groq llama-3.1-8b-instant | `eligibilityCheckTool` | Preliminary eligibility assessment |
+| `websiteAgent` | Groq llama-3.3-70b-versatile | `websiteFetchTool` | Answers from live website content (env `WEBSITE_BASE_URL`); fetch is SSRF-guarded to that host |
 | `generalAgent` | Groq llama-3.3-70b-versatile | none | Off-topic/general questions — never quotes products, rates, or eligibility rules |
 | `complianceAgent` | Groq llama-3.1-8b-instant | none | NCCP/APRA/DDO review — called via `src/lib/compliance.ts`, never as an orchestrator tool |
 

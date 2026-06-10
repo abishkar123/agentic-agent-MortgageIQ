@@ -5,7 +5,7 @@ import { orchestratorAgent } from '../agents/orchestrator'
 
 interface EvalCase {
   query: string
-  expectedAgent: 'faqAgent' | 'calculatorAgent' | 'eligibilityAgent' | 'generalAgent' | 'escalated'
+  expectedAgent: 'faqAgent' | 'calculatorAgent' | 'eligibilityAgent' | 'websiteAgent' | 'generalAgent' | 'escalated'
   expectedToolCall?: string
   groundTruth?: string
 }
@@ -42,6 +42,11 @@ const EVAL_CASES: EvalCase[] = [
     query: 'I am self-employed and want to apply for a home loan',
     expectedAgent: 'eligibilityAgent',
     expectedToolCall: 'delegate_to_eligibility',
+  },
+  {
+    query: 'What interest rates are currently advertised on the Mortgage House website?',
+    expectedAgent: 'websiteAgent',
+    expectedToolCall: 'delegate_to_website',
   },
   {
     query: 'What does the RBA actually do?',

@@ -17,6 +17,7 @@ Orchestrator Agent (OpenAI gpt-4o)
     ├── delegate_to_faq        → FAQ Agent (Groq)        → knowledge search tool
     ├── delegate_to_calculator → Calculator Agent (Groq) → Math tools (repayment, LVR, borrowing)
     ├── delegate_to_eligibility→ Eligibility Agent (Groq)→ Rules engine tool
+    ├── delegate_to_website    → Website Agent (Groq)    → live page fetch (SSRF-guarded)
     ├── delegate_to_general    → General Agent (Groq)    → off-topic / general questions
     └── escalate_to_human      → static broker handoff
     ↓

@@ -2,7 +2,7 @@ import { Agent } from '@mastra/core/agent'
 import { createTool } from '@mastra/core/tools'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
-import { faqAgent, calculatorAgent, eligibilityAgent, generalAgent } from './specialists'
+import { faqAgent, calculatorAgent, eligibilityAgent, generalAgent, websiteAgent } from './specialists'
 import { CircuitBreaker } from '../lib/circuitBreaker'
 
 // Per-agent failure isolation — a degraded sub-agent fails fast instead of
@@ -12,6 +12,7 @@ const breakers = {
   calculatorAgent: new CircuitBreaker('calculatorAgent'),
   eligibilityAgent: new CircuitBreaker('eligibilityAgent'),
   generalAgent: new CircuitBreaker('generalAgent'),
+  websiteAgent: new CircuitBreaker('websiteAgent'),
 }
 
 // On delegation failure the tool returns a degraded result rather than throwing,
@@ -65,6 +66,16 @@ const delegateToEligibility = createTool({
   execute: async (inputData) => delegate(eligibilityAgent, 'eligibilityAgent', inputData.query),
 })
 
+const delegateToWebsite = createTool({
+  id: 'delegate_to_website',
+  description:
+    'Delegate to the website specialist when the answer needs LIVE content from the Mortgage House website: current advertised interest rates, latest offers/promotions, contact details, branch info, or "what does the website say about X". Use delegate_to_faq instead for general product/policy education.',
+  inputSchema: z.object({
+    query: z.string().describe('The question to answer from live website content'),
+  }),
+  execute: async (inputData) => delegate(websiteAgent, 'websiteAgent', inputData.query),
+})
+
 const delegateToGeneral = createTool({
   id: 'delegate_to_general',
   description:
@@ -113,6 +124,7 @@ Routing guide:
 - Product/policy questions → delegate_to_faq
 - Numbers, calculations, repayments, LVR → delegate_to_calculator
 - Qualification, income, deposit, eligibility → delegate_to_eligibility
+- Current advertised rates, latest offers, contact/branch details, live website content → delegate_to_website
 - Off-topic, general knowledge, casual conversation → delegate_to_general
 - Hardship, bankruptcy, SMSF, non-resident, guarantor, deceased estate, >$3M, credit defaults → escalate_to_human
 
@@ -127,6 +139,7 @@ Rules:
     delegateToFaq,
     delegateToCalculator,
     delegateToEligibility,
+    delegateToWebsite,
     delegateToGeneral,
     escalateToHuman,
   },
