@@ -40,6 +40,7 @@ classification → specialist → compliance).
 | Mixed LLM providers | `agents/orchestrator.ts` + `agents/specialists.ts` | OpenAI for routing/synthesis, Groq for task execution |
 | Circuit breaker | `lib/circuitBreaker.ts` | Per-agent failure isolation with half-open recovery |
 | Deterministic fallback | `app/api/chat/route.ts` | Workflow path when the orchestrator is unavailable |
+| Observability | `app/api/chat/route.ts` + `app/api/health/route.ts` | Structured request logs + breaker/provider health endpoint |
 | Parallel agents | `workflows/loanEnquiry.ts` | `Promise.all` on two agents |
 | Compliance gate | `lib/compliance.ts` | Every output reviewed before delivery — structurally, not by prompt |
 | Eval harness | `evals/harness.ts` | Routing accuracy + tool call correctness |

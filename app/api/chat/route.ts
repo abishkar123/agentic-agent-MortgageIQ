@@ -8,6 +8,11 @@ interface ChatMessage {
   content: string
 }
 
+// Input bounds: a single oversized message (or an unbounded history) would be
+// forwarded straight into LLM context and billed accordingly.
+const MAX_MESSAGE_CHARS = 4_000
+const MAX_MESSAGES = 50
+
 // Main agentic path: the OpenAI orchestrator routes to Groq sub-agents via tool
 // calls, then the response passes the deterministic compliance gate.
 async function runOrchestrator(
@@ -78,40 +83,67 @@ async function runWorkflow(
 }
 
 export async function POST(request: Request) {
+  const requestId = crypto.randomUUID().slice(0, 8)
+  const startedAt = Date.now()
+
   try {
     const body = (await request.json()) as { messages?: ChatMessage[] }
-    const messages = body.messages ?? []
+    const messages = (body.messages ?? []).slice(-MAX_MESSAGES)
     const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')
 
     if (!latestUserMessage?.content.trim()) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
+    }
+    if (latestUserMessage.content.length > MAX_MESSAGE_CHARS) {
+      return NextResponse.json(
+        { error: `Message too long — maximum ${MAX_MESSAGE_CHARS} characters` },
+        { status: 400 }
+      )
     }
 
     // Conversation history: last 10 turns before the latest user message (guards context window limits)
     const allPrior = messages
       .slice(0, messages.lastIndexOf(latestUserMessage))
       .filter((m): m is ChatMessage => m.role === 'user' || m.role === 'assistant')
-    const history = allPrior.slice(-10)
+    const history = allPrior
+      .slice(-10)
+      .map((m) => ({ ...m, content: m.content.slice(0, MAX_MESSAGE_CHARS) }))
     const query = latestUserMessage.content
 
     let outcome: { finalResponse: string; toolCalls: string[] }
+    let path: 'orchestrator' | 'workflow' | 'workflow-fallback'
     if (process.env.OPENAI_API_KEY) {
       try {
+        path = 'orchestrator'
         outcome = await runOrchestrator(history, query)
       } catch (error) {
-        console.error('Orchestrator failed — falling back to workflow:', error)
+        console.error(`[chat:${requestId}] orchestrator failed — falling back to workflow:`, error)
+        path = 'workflow-fallback'
         outcome = await runWorkflow(history, query)
       }
     } else {
+      path = 'workflow'
       outcome = await runWorkflow(history, query)
     }
+
+    // One structured line per request — the audit/observability hook
+    console.log(
+      JSON.stringify({
+        evt: 'chat',
+        requestId,
+        path,
+        toolCalls: outcome.toolCalls,
+        historyTurns: history.length,
+        durationMs: Date.now() - startedAt,
+      })
+    )
 
     return new Response(
       `${outcome.finalResponse}\n__META__${JSON.stringify({ toolCalls: outcome.toolCalls })}`,
       { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
     )
   } catch (error) {
-    console.error(error)
+    console.error(`[chat:${requestId}] failed after ${Date.now() - startedAt}ms:`, error)
     return NextResponse.json({ error: 'Unable to process message' }, { status: 500 })
   }
 }

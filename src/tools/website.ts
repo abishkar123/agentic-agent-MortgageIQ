@@ -4,6 +4,13 @@ import { z } from 'zod'
 const BASE_URL = process.env.WEBSITE_BASE_URL ?? 'https://www.mortgagehouse.com.au'
 const allowedHost = new URL(BASE_URL).host.replace(/^www\./, '')
 
+// Short TTL cache: repeated questions in a conversation hit the same pages,
+// and hammering the site invites bot-blocking. Single-version snapshot per
+// URL — no shared mutable state across requests.
+const CACHE_TTL_MS = 5 * 60_000
+const CACHE_MAX_ENTRIES = 50
+const pageCache = new Map<string, { expires: number; payload: { url: string; content: string } }>()
+
 // Crude but dependency-free HTML→text: good enough for an LLM to read a page
 function htmlToText(html: string): string {
   return html
@@ -42,6 +49,11 @@ export const websiteFetchTool = createTool({
       return { error: `Only pages on ${allowedHost} can be fetched.`, url: target.href }
     }
 
+    const cached = pageCache.get(target.href)
+    if (cached && cached.expires > Date.now()) {
+      return cached.payload
+    }
+
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 10_000)
     try {
@@ -58,7 +70,12 @@ export const websiteFetchTool = createTool({
         return { error: 'Page redirected off the allowed website.', url: res.url }
       }
       const text = htmlToText(await res.text()).slice(0, 8000)
-      return { url: res.url, content: text || 'Page contained no readable text.' }
+      const payload = { url: res.url, content: text || 'Page contained no readable text.' }
+      if (pageCache.size >= CACHE_MAX_ENTRIES) {
+        pageCache.delete(pageCache.keys().next().value as string)
+      }
+      pageCache.set(target.href, { expires: Date.now() + CACHE_TTL_MS, payload })
+      return payload
     } catch (error) {
       return {
         error: `Could not fetch the page: ${error instanceof Error ? error.message : 'unknown error'}`,

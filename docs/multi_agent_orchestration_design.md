@@ -46,6 +46,15 @@ deterministic workflow (`src/workflows/loanEnquiry.ts`): regex intent
 classification → specialist → compliance. Same contract, lower ceiling, no
 single point of failure on OpenAI.
 
+**Delegation deadlines.** Breakers count failures, not latency, so every
+delegation also carries a 45s timeout — a hung sub-agent call fails, counts
+toward the breaker, and degrades gracefully instead of holding the request.
+
+**Observability.** Each `/api/chat` request emits one structured JSON log line
+(request id, execution path, tool calls, duration), and `GET /api/health`
+exposes the active path, provider configuration, and live circuit breaker
+states for ops dashboards and alerting.
+
 **Compliance as a structural gate, not an instruction.** The reference warns
 against trusting agents to police themselves. Compliance review runs
 deterministically *after* the orchestrator answers (`src/lib/compliance.ts`),

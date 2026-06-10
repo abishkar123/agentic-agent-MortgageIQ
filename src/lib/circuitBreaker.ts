@@ -10,10 +10,15 @@ export class CircuitBreaker {
   private openedAt = 0
 
   constructor(
-    private readonly name: string,
+    readonly name: string,
     private readonly threshold = 3,
     private readonly cooldownMs = 30_000
   ) {}
+
+  get state(): 'closed' | 'open' | 'half-open' {
+    if (this.failures < this.threshold) return 'closed'
+    return Date.now() - this.openedAt < this.cooldownMs ? 'open' : 'half-open'
+  }
 
   async run<T>(fn: () => Promise<T>): Promise<T> {
     if (this.failures >= this.threshold) {

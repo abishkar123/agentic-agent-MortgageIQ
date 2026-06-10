@@ -70,7 +70,9 @@ The API response format is `<response text>\n__META__{"toolCalls":["delegate_to_
 ## Key constraints
 
 - **Compliance is a structural gate, not a tool** — never give the orchestrator a compliance tool or call `orchestratorAgent.generateLegacy()` with a plain-text compliance prompt. Always go through `reviewCompliance()` in `src/lib/compliance.ts`, which calls `complianceAgent` directly after the orchestrator answers.
-- **Circuit breakers** (`src/lib/circuitBreaker.ts`) wrap each delegation: 3 consecutive sub-agent failures open the circuit for 30s; a delegation failure returns a degraded tool result (`SPECIALIST UNAVAILABLE: …`) instead of throwing.
+- **Circuit breakers** (`src/lib/circuitBreaker.ts`) wrap each delegation: 3 consecutive sub-agent failures open the circuit for 30s; a delegation failure returns a degraded tool result (`SPECIALIST UNAVAILABLE: …`) instead of throwing. Delegations also carry a 45s timeout so hung calls count as failures.
+- **Observability** — `/api/chat` logs one structured JSON line per request (`requestId`, `path`, `toolCalls`, `durationMs`); `GET /api/health` reports the active path, provider key presence, and per-agent breaker states.
+- **Input bounds** — `/api/chat` rejects messages over 4,000 chars and caps history at 50 messages (10 turns passed to agents).
 - **HITL suspend is disabled** — `hitlGate` returns `approved:false` instead of calling `suspend()`, keeping the workflow synchronous. Escalation cases are handled by `runSpecialist` (workflow) or the `escalate_to_human` tool (orchestrator) returning a static broker message.
 - The `.npmrc` sets `legacy-peer-deps=true` — required due to peer dependency conflicts in the Mastra + LangChain combination.
 - CI (`agent-eval` job) depends on a cached HNSWLib vector store from a sibling `mortgageiq-ts` repo. This cache will miss in fresh environments; evals will degrade gracefully to "knowledge base not available" answers.

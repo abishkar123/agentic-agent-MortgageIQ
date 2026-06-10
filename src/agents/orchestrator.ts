@@ -7,7 +7,8 @@ import { CircuitBreaker } from '../lib/circuitBreaker'
 
 // Per-agent failure isolation — a degraded sub-agent fails fast instead of
 // holding every request hostage, and the orchestrator can still answer.
-const breakers = {
+// Exported read-only for the /api/health endpoint.
+export const breakers = {
   faqAgent: new CircuitBreaker('faqAgent'),
   calculatorAgent: new CircuitBreaker('calculatorAgent'),
   eligibilityAgent: new CircuitBreaker('eligibilityAgent'),
@@ -20,9 +21,25 @@ const breakers = {
 // whole request 500ing.
 type Specialist = { generateLegacy: (query: string) => Promise<{ text: string }> }
 
+// Breakers count failures, not latency — without a deadline a hung Groq call
+// holds the request open indefinitely and never trips the breaker.
+const DELEGATION_TIMEOUT_MS = 45_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v) },
+      (e) => { clearTimeout(timer); reject(e) }
+    )
+  })
+}
+
 async function delegate(agent: Specialist, agentName: keyof typeof breakers, query: string) {
   try {
-    const result = await breakers[agentName].run(() => agent.generateLegacy(query))
+    const result = await breakers[agentName].run(() =>
+      withTimeout(agent.generateLegacy(query), DELEGATION_TIMEOUT_MS, agentName)
+    )
     return { response: result.text, agent: agentName }
   } catch (error) {
     console.error(`[orchestrator] delegation to ${agentName} failed:`, error)
