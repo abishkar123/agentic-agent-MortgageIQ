@@ -16,7 +16,7 @@ Per the decision matrix, this domain lands squarely on the orchestration side:
 |---|---|---|
 | Workflow coupling | FAQ/calc/eligibility answers feed one synthesised reply | Tight → orchestration |
 | Agent autonomy needed | Sub-agents are single-purpose tools | Low → orchestration |
-| Agents added frequently | Stable set of 4 specialists | Stable → orchestration |
+| Agents added frequently | Stable set of 5 specialists | Stable → orchestration |
 | Debugging priority | Consumer credit product | High → orchestration |
 | Compliance / audit | NCCP / APRA / DDO regulated | Audit trail required → orchestration |
 
@@ -29,7 +29,7 @@ badges, and loggable per request.
 | Layer | Provider | Why |
 |---|---|---|
 | Orchestrator (main agent) | OpenAI (`gpt-4o`, override with `OPENAI_MODEL`) | Strongest tool-calling reliability for routing + synthesis |
-| FAQ / calculator / eligibility / compliance sub-agents | Groq (`llama-3.3-70b`, `llama-3.1-8b`) | Fast, cheap, single-purpose task execution |
+| FAQ / calculator / eligibility / general / compliance sub-agents | Groq (`llama-3.3-70b`, `llama-3.1-8b`) | Fast, cheap, single-purpose task execution |
 
 ## Failure & recovery patterns implemented
 
@@ -69,7 +69,7 @@ state and there is no cache layer, so the stale-read race condition class
 
 ## Deliberately not implemented (and why)
 
-- **Message bus / choreography** — 4 stable agents with tight coupling; an
+- **Message bus / choreography** — 5 stable agents with tight coupling; an
   event bus would buy autonomy nobody needs and cost the debuggability we do.
 - **Saga / compensation registry** — all operations are read-only Q&A; there
   is nothing to compensate. Becomes relevant the day agents write (e.g. lodge

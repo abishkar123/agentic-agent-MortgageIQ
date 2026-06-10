@@ -2,7 +2,7 @@ import { Agent } from '@mastra/core/agent'
 import { createTool } from '@mastra/core/tools'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
-import { faqAgent, calculatorAgent, eligibilityAgent } from './specialists'
+import { faqAgent, calculatorAgent, eligibilityAgent, generalAgent } from './specialists'
 import { CircuitBreaker } from '../lib/circuitBreaker'
 
 // Per-agent failure isolation — a degraded sub-agent fails fast instead of
@@ -11,6 +11,7 @@ const breakers = {
   faqAgent: new CircuitBreaker('faqAgent'),
   calculatorAgent: new CircuitBreaker('calculatorAgent'),
   eligibilityAgent: new CircuitBreaker('eligibilityAgent'),
+  generalAgent: new CircuitBreaker('generalAgent'),
 }
 
 // On delegation failure the tool returns a degraded result rather than throwing,
@@ -64,6 +65,16 @@ const delegateToEligibility = createTool({
   execute: async (inputData) => delegate(eligibilityAgent, 'eligibilityAgent', inputData.query),
 })
 
+const delegateToGeneral = createTool({
+  id: 'delegate_to_general',
+  description:
+    'Delegate to the general assistant for questions outside the mortgage domain: general knowledge, definitions, general finance/property concepts, or casual conversation. Never use this for Mortgage House products, calculations, or eligibility.',
+  inputSchema: z.object({
+    query: z.string().describe('The general question to pass to the general assistant'),
+  }),
+  execute: async (inputData) => delegate(generalAgent, 'generalAgent', inputData.query),
+})
+
 const escalateToHuman = createTool({
   id: 'escalate_to_human',
   description:
@@ -102,10 +113,11 @@ Routing guide:
 - Product/policy questions → delegate_to_faq
 - Numbers, calculations, repayments, LVR → delegate_to_calculator
 - Qualification, income, deposit, eligibility → delegate_to_eligibility
+- Off-topic, general knowledge, casual conversation → delegate_to_general
 - Hardship, bankruptcy, SMSF, non-resident, guarantor, deceased estate, >$3M, credit defaults → escalate_to_human
 
 Rules:
-- Never answer mortgage questions directly without delegating. You are a router and synthesiser, not a responder.
+- Never answer questions directly without delegating. You are a router and synthesiser, not a responder.
 - When delegating, include all relevant context from the conversation history in the query you pass — sub-agents do not see the history.
 - If a question spans multiple specialists, call them in sequence and synthesise the results.
 - If you call escalate_to_human, your final response must be exactly the userMessage the tool returns — nothing else.
@@ -115,6 +127,7 @@ Rules:
     delegateToFaq,
     delegateToCalculator,
     delegateToEligibility,
+    delegateToGeneral,
     escalateToHuman,
   },
 })

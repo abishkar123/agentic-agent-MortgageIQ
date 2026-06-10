@@ -36,6 +36,14 @@ async function runOrchestrator(
     return { finalResponse: result.text, toolCalls }
   }
 
+  // Off-topic answers (general assistant only) skip compliance — the reviewer
+  // appends a mortgage disclaimer, which is wrong on non-mortgage content.
+  // Anything else, including a direct answer with no tool calls, gets reviewed.
+  const generalOnly = toolCalls.length > 0 && toolCalls.every((t) => t === 'delegate_to_general')
+  if (generalOnly) {
+    return { finalResponse: result.text, toolCalls }
+  }
+
   const { finalResponse } = await reviewCompliance(result.text)
   return { finalResponse, toolCalls: [...toolCalls, 'compliance_review'] }
 }
