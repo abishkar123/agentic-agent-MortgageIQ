@@ -1,11 +1,11 @@
 import 'dotenv/config'
 import { groq } from '@ai-sdk/groq'
 import { generateText } from 'ai'
-import { supervisorAgent } from '../agents/supervisor'
+import { orchestratorAgent } from '../agents/orchestrator'
 
 interface EvalCase {
   query: string
-  expectedAgent: 'faqAgent' | 'calculatorAgent' | 'eligibilityAgent' | 'escalated'
+  expectedAgent: 'faqAgent' | 'calculatorAgent' | 'eligibilityAgent' | 'websiteAgent' | 'generalAgent' | 'escalated'
   expectedToolCall?: string
   groundTruth?: string
 }
@@ -42,6 +42,16 @@ const EVAL_CASES: EvalCase[] = [
     query: 'I am self-employed and want to apply for a home loan',
     expectedAgent: 'eligibilityAgent',
     expectedToolCall: 'delegate_to_eligibility',
+  },
+  {
+    query: 'What interest rates are currently advertised on the Mortgage House website?',
+    expectedAgent: 'websiteAgent',
+    expectedToolCall: 'delegate_to_website',
+  },
+  {
+    query: 'What does the RBA actually do?',
+    expectedAgent: 'generalAgent',
+    expectedToolCall: 'delegate_to_general',
   },
   {
     query: 'I declared bankruptcy 2 years ago. Can I still get a mortgage?',
@@ -87,7 +97,7 @@ async function runHarness(): Promise<void> {
   for (const c of EVAL_CASES) {
     process.stdout.write(`Q: ${c.query.slice(0, 55)}...\n`)
 
-    const result = await supervisorAgent.generateLegacy(c.query)
+    const result = await orchestratorAgent.generateLegacy(c.query)
     const text = result.text
 
     // Check which tool was called (toolResults shape changed in ai v6 — use any)

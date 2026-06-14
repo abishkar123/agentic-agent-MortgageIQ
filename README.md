@@ -5,37 +5,55 @@ Evolves MortgageIQ from a RAG chatbot into a routed, evaluated, compliance-gated
 
 ## Architecture
 
+Centralized orchestration: an **OpenAI orchestrator** (main agent) routes via tool
+calls to **Groq sub-agents**, each wrapped in a circuit breaker. Every response then
+passes a deterministic compliance gate. See `docs/multi_agent_orchestration_design.md`
+for the full design rationale.
+
 ```
-User query
+User query (+ conversation history)
     ↓
-Supervisor Agent (llama-3.1-70b)
-    ├── delegate_to_faq        → FAQ Agent       → RAG search tool
-    ├── delegate_to_calculator → Calculator Agent → Math tools (repayment, LVR, borrowing)
-    ├── delegate_to_eligibility→ Eligibility Agent→ Rules engine tool
-    ├── compliance_review      → Compliance Agent → NCCP/APRA checker
-    └── escalate_to_human      → HITL workflow gate
+Orchestrator Agent (OpenAI gpt-4o)
+    ├── delegate_to_faq        → FAQ Agent (Groq)        → knowledge search tool
+    ├── delegate_to_calculator → Calculator Agent (Groq) → Math tools (repayment, LVR, borrowing)
+    ├── delegate_to_eligibility→ Eligibility Agent (Groq)→ Rules engine tool
+    ├── delegate_to_website    → Website Agent (Groq)    → live page fetch (SSRF-guarded)
+    ├── delegate_to_general    → General Agent (Groq)    → off-topic / general questions
+    └── escalate_to_human      → static broker handoff
+    ↓
+Compliance gate (Groq complianceAgent — deterministic; skipped only for
+escalations and general-only answers)
+    ↓
+Response + toolCalls audit trail
 ```
+
+If `OPENAI_API_KEY` is not set (or the orchestrator errors), the API falls back to
+the deterministic workflow in `src/workflows/loanEnquiry.ts` (regex intent
+classification → specialist → compliance).
 
 ## Patterns you learn
 
 | Pattern | Where | What it teaches |
 |---|---|---|
-| Supervisor | `agents/supervisor.ts` | Route complex tasks to specialists |
-| Agents as tools | `agents/supervisor.ts` | Sub-agents wrapped in `createTool` |
+| Orchestrator | `agents/orchestrator.ts` | Central agent routes complex tasks to specialists |
+| Agents as tools | `agents/orchestrator.ts` | Sub-agents wrapped in `createTool` |
+| Mixed LLM providers | `agents/orchestrator.ts` + `agents/specialists.ts` | OpenAI for routing/synthesis, Groq for task execution |
+| Circuit breaker | `lib/circuitBreaker.ts` | Per-agent failure isolation with half-open recovery |
+| Deterministic fallback | `app/api/chat/route.ts` | Workflow path when the orchestrator is unavailable |
+| Observability | `app/api/chat/route.ts` + `app/api/health/route.ts` | Structured request logs + breaker/provider health endpoint |
 | Parallel agents | `workflows/loanEnquiry.ts` | `Promise.all` on two agents |
-| Human-in-the-loop | `workflows/loanEnquiry.ts` | `.suspend()` / `.resume()` |
-| Compliance gate | `agents/specialists.ts` | Every output reviewed before delivery |
+| Compliance gate | `lib/compliance.ts` | Every output reviewed before delivery — structurally, not by prompt |
 | Eval harness | `evals/harness.ts` | Routing accuracy + tool call correctness |
 | CI eval gate | `.github/workflows/ci.yml` | Blocks deploy on eval regression |
 
-## Stack (all free)
+## Stack
 
 | Layer | Tool |
 |---|---|
 | Agent framework | Mastra `@mastra/core` |
-| LLM — supervisor | Groq `llama-3.3-70b-versatile` |
-| LLM — specialists | Groq `llama-3.1-8b-instant` |
-| LLM provider | Vercel AI SDK `@ai-sdk/groq` |
+| LLM — orchestrator | OpenAI `gpt-4o` (override with `OPENAI_MODEL`) |
+| LLM — sub-agents | Groq `llama-3.3-70b-versatile` / `llama-3.1-8b-instant` |
+| LLM providers | Vercel AI SDK `@ai-sdk/openai` + `@ai-sdk/groq` |
 | Vector store | HNSWLib (from mortgageiq-ts) |
 | UI | Next.js 15 + Tailwind |
 
@@ -44,7 +62,9 @@ Supervisor Agent (llama-3.1-70b)
 ```bash
 npm install
 cp .env.example .env
-# Add GROQ_API_KEY from console.groq.com
+# Add GROQ_API_KEY from console.groq.com (sub-agents)
+# Add OPENAI_API_KEY from platform.openai.com (orchestrator;
+# without it the app falls back to the deterministic workflow)
 
 # Requires hnswlib_db from mortgageiq-ts to already exist
 # If not: cd ../mortgageiq-ts && npm run ingest

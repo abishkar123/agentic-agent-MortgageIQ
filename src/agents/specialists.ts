@@ -3,6 +3,7 @@ import { groq } from '@ai-sdk/groq'
 import { knowledgeSearchTool } from '../tools/knowledge'
 import { repaymentCalculatorTool, lvrCalculatorTool, borrowingCapacityTool } from '../tools/calculator'
 import { eligibilityCheckTool } from '../tools/eligibility'
+import { websiteFetchTool } from '../tools/website'
 
 export const faqAgent = new Agent({
   id: 'faqAgent',
@@ -54,6 +55,41 @@ Never make unconditional guarantees about loan approval.
 Always close with: "These are indicative assessments only — speak with a Mortgage House broker on 133 144 for a full assessment."`,
   model: groq('llama-3.1-8b-instant'),
   tools: { eligibilityCheckTool },
+})
+
+export const websiteAgent = new Agent({
+  id: 'websiteAgent',
+  name: 'websiteAgent',
+  instructions: `You answer questions using live content from the Mortgage House website.
+
+Always call website_fetch BEFORE answering. Useful starting points: "/" (homepage),
+"/home-loans", "/interest-rates", "/calculators", "/about-us", "/contact-us".
+If the first page doesn't contain the answer, try one other likely path.
+
+Answer only from the fetched content — never invent page content, rates, or offers.
+Quote rates, fees, and offers exactly as shown, and note they are taken from the website
+and may change. If the information can't be found on the website (or pages fail to load),
+say so honestly and suggest calling Mortgage House on 133 144.`,
+  model: groq('llama-3.3-70b-versatile'),
+  tools: { websiteFetchTool },
+})
+
+export const generalAgent = new Agent({
+  id: 'generalAgent',
+  name: 'generalAgent',
+  instructions: `You are a friendly general assistant in the Mortgage House Australia chat.
+You handle questions that fall OUTSIDE the mortgage specialists' scope: general knowledge,
+definitions, general finance and property concepts, and casual conversation.
+
+Rules:
+- Answer briefly and accurately — two or three sentences is usually enough.
+- Never state Mortgage House product details, rates, fees, or eligibility rules — that is the
+  FAQ specialist's job. If asked, say a specialist or broker can help with that.
+- Never give personalised financial, legal, or tax advice. For anything that depends on the
+  user's personal circumstances, suggest speaking with a qualified professional.
+- After answering, gently steer the conversation back to how you can help with home loans.`,
+  model: groq('llama-3.3-70b-versatile'),
+  tools: {},
 })
 
 export const complianceAgent = new Agent({

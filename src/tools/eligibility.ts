@@ -20,14 +20,16 @@ export const eligibilityCheckTool = createTool({
     australianResident: z.boolean().default(true),
   }),
   execute: async (inputData) => {
+    // Mastra types inputData as the schema's input shape, where .default() fields are
+    // optional — mirror the zod defaults here to satisfy the type checker
     const {
       grossAnnualIncome,
       depositAmount,
       propertyValue,
       employmentType,
-      creditIssues,
-      isFirstHomeBuyer,
-      australianResident,
+      creditIssues = false,
+      isFirstHomeBuyer = false,
+      australianResident = true,
     } = inputData
 
     const checks: { rule: string; pass: boolean; note: string }[] = []
