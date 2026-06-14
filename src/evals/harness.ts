@@ -97,12 +97,23 @@ async function runHarness(): Promise<void> {
   for (const c of EVAL_CASES) {
     process.stdout.write(`Q: ${c.query.slice(0, 55)}...\n`)
 
-    const result = await orchestratorAgent.generateLegacy(c.query)
+    const result = await orchestratorAgent.generate([{ role: 'user' as const, content: c.query }])
     const text = result.text
 
-    // Check which tool was called (toolResults shape changed in ai v6 — use any)
+    // Check which tool was called (steps shape changed in ai v6 — use any)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const toolCalls = (result.toolResults as any[])?.map((t: any) => t.toolName ?? t.tool) ?? []
+    const steps = (result.steps as any[]) ?? []
+    const toolCalls = Array.from(
+      new Set(
+        steps.flatMap((s: any) =>
+          (s.toolCalls ?? []).map((tc: any) => {
+            const name = tc.payload?.toolName ?? tc.toolName ?? tc.tool
+            // Convert camelCase to snake_case (e.g., delegateToFaq → delegate_to_faq)
+            return name ? name.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '') : undefined
+          })
+        )
+      )
+    ).filter(Boolean) as string[]
     const toolPass = c.expectedToolCall ? toolCalls.includes(c.expectedToolCall) : true
 
     // Check routing (inferred from tool call)

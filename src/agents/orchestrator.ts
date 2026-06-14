@@ -19,7 +19,7 @@ export const breakers = {
 // On delegation failure the tool returns a degraded result rather than throwing,
 // so the orchestrator can apologise and hand off to a broker instead of the
 // whole request 500ing.
-type Specialist = { generateLegacy: (query: string) => Promise<{ text: string }> }
+type Specialist = { generate: (messages: any[]) => Promise<{ text: string }> }
 
 // Breakers count failures, not latency — without a deadline a hung Groq call
 // holds the request open indefinitely and never trips the breaker.
@@ -38,7 +38,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 async function delegate(agent: Specialist, agentName: keyof typeof breakers, query: string) {
   try {
     const result = await breakers[agentName].run(() =>
-      withTimeout(agent.generateLegacy(query), DELEGATION_TIMEOUT_MS, agentName)
+      withTimeout(agent.generate([{ role: 'user' as const, content: query }]), DELEGATION_TIMEOUT_MS, agentName)
     )
     return { response: result.text, agent: agentName }
   } catch (error) {

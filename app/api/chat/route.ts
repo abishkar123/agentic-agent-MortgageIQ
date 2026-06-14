@@ -24,7 +24,7 @@ async function runOrchestrator(
   // runtime MessageList constructor accepts this shape correctly.
   const messages: any[] = [...history, { role: 'user' as const, content: query }]
 
-  const result = await orchestratorAgent.generateLegacy(messages, { maxSteps: 8 })
+  const result = await orchestratorAgent.generate(messages)
 
   // Collect every tool the orchestrator called across all steps (steps shape
   // changed in ai v6 — use any, same as the eval harness)

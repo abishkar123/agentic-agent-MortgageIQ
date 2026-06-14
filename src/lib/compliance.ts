@@ -6,9 +6,12 @@ import { complianceAgent } from '../agents/specialists'
 export async function reviewCompliance(
   responseText: string
 ): Promise<{ finalResponse: string; compliancePass: boolean }> {
-  const review = await complianceAgent.generateLegacy(
-    `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${responseText}`
-  )
+  const review = await complianceAgent.generate([
+    {
+      role: 'user' as const,
+      content: `Review this response for NCCP, APRA, responsible lending, and DDO compliance:\n\n${responseText}`,
+    },
+  ])
 
   // First line must be exactly "COMPLIANT" — "NON-COMPLIANT".includes("COMPLIANT") is true,
   // so substring search is not safe here.
