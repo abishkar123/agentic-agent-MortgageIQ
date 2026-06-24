@@ -68,9 +68,10 @@ const EVAL_CASES: EvalCase[] = [
 async function scoreRelevance(query: string, response: string): Promise<number> {
   // groq returns LanguageModelV1; ai@6 generateText expects V2/V3. The runtime
   // is structurally compatible — cast to satisfy the type checker only.
+  // Uses 70b to keep the judge on a separate TPM budget from the 8b-instant agents.
   const { text } = await generateText({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    model: groq('llama-3.1-8b-instant') as any,
+    model: groq('llama-3.3-70b-versatile') as any,
     prompt: `Score how relevant this response is to the question. Reply with ONLY a number 0.0–1.0.
 Question: ${query}
 Response: ${response.slice(0, 500)}
@@ -133,6 +134,9 @@ async function runHarness(): Promise<void> {
     console.log(`  Tool calls: ${toolCalls.join(', ') || 'none'}\n`)
 
     results.push({ query: c.query, routingPass, toolPass, relevance })
+
+    // Brief pause between cases to avoid bursting through Groq's per-minute TPM limit.
+    await new Promise(r => setTimeout(r, 3000))
   }
 
   const n = EVAL_CASES.length
