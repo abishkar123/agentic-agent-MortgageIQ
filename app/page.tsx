@@ -233,7 +233,46 @@ export default function Home() {
         </span>
       </button>
 
-      {/* Chat panel — wired in Task 3 */}
+      {/* Chat panel */}
+      <div
+        className={`fixed z-40 flex flex-col overflow-hidden border border-[#cbddeb] bg-white shadow-2xl shadow-blue-950/15 transition-all duration-200
+          bottom-0 right-0 h-[85vh] w-screen rounded-t-2xl
+          sm:bottom-20 sm:right-6 sm:h-[580px] sm:w-[380px] sm:rounded-2xl
+          ${isOpen ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'}`}
+      >
+        {/* Panel header */}
+        <div className="shrink-0 border-b border-[#d9e4ef] bg-white px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#003d78] text-xs font-black text-white">
+                AI
+                <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-[#4caf50]" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-[#003d78]">MortgageIQ Assistant</p>
+                <p className="text-xs text-[#6a8195]">Ask about loans, repayments, LVR or eligibility</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-[#eaf4fc] px-2.5 py-0.5 text-xs font-bold text-[#0055a6]">
+                Online
+              </span>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="grid h-7 w-7 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#b9daf4]"
+                aria-label="Close chat"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Message area — wired in Task 4 */}
+        <div className="min-h-0 flex-1 bg-[#f8fbfe]" />
+
+        {/* Input bar — wired in Task 5 */}
+      </div>
     </div>
   )
 }
