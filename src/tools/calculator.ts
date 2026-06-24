@@ -9,7 +9,7 @@ export const repaymentCalculatorTool = createTool({
     principal: z.number().describe('Loan amount in AUD'),
     annualRate: z.number().describe('Annual interest rate as a percentage e.g. 6.5'),
     termYears: z.number().describe('Loan term in years e.g. 30'),
-    type: z.enum(['principal_and_interest', 'interest_only']).default('principal_and_interest'),
+    type: z.enum(['principal_and_interest', 'interest_only']).optional().default('principal_and_interest'),
   }),
   execute: async (inputData) => {
     const { principal, annualRate, termYears, type } = inputData
