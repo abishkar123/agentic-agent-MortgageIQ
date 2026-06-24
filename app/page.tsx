@@ -353,7 +353,33 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Input bar — wired in Task 5 */}
+        {/* Input bar */}
+        <footer className="shrink-0 border-t border-[#d9e4ef] bg-white px-3 py-2">
+          <form
+            onSubmit={handleSubmit}
+            className="flex items-end gap-2 rounded-[20px] border border-[#cbddeb] bg-[#f8fbfe] p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-[#b9daf4]"
+          >
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask Mortgage House about home loans..."
+              disabled={loading}
+              className="min-h-9 flex-1 bg-transparent px-2 text-xs text-[#1f384c] outline-none placeholder:text-[#7a91a5] disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-[14px] bg-[#f58220] text-sm font-black text-white transition hover:bg-[#dd6f14] focus:outline-none focus:ring-2 focus:ring-[#f8c491] disabled:cursor-not-allowed disabled:opacity-35"
+              aria-label="Send message"
+            >
+              ↑
+            </button>
+          </form>
+          <p className="mt-1.5 text-center text-[10px] text-[#6a8195]">
+            Demo only. Confirm lending recommendations with a Mortgage House broker.
+          </p>
+        </footer>
       </div>
     </div>
   )
