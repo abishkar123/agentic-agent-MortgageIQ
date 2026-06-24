@@ -268,8 +268,90 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Message area — wired in Task 4 */}
-        <div className="min-h-0 flex-1 bg-[#f8fbfe]" />
+        {/* Message area */}
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#f8fbfe] px-3 py-4">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center py-4 text-center">
+              <div className="grid h-12 w-12 place-items-center rounded-[18px] bg-[#0055a6] text-sm font-black text-white shadow-lg shadow-blue-900/15">
+                MH
+              </div>
+              <p className="mt-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#f58220]">
+                Virtual lending assistant
+              </p>
+              <h2 className="mt-1 text-xl font-black text-[#003d78]">How can I help today?</h2>
+              <p className="mt-1.5 text-xs leading-5 text-[#45647d]">
+                Ask about products, calculators, eligibility or compliance.
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+                {QUICK_ACTIONS.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => sendMessage(item)}
+                    className="rounded-full border border-[#cbddeb] bg-white px-3 py-1.5 text-xs font-bold text-[#24465f] transition hover:border-[#8db8dc] hover:bg-[#eef6fd]"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 grid w-full grid-cols-2 gap-1.5">
+                {STARTERS.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => sendMessage(q)}
+                    className="rounded-xl border border-[#d9e4ef] bg-white px-3 py-2 text-left text-xs font-semibold leading-5 text-[#24465f] shadow-sm transition hover:border-[#8db8dc] hover:bg-[#eef6fd]"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {msg.role === 'assistant' && (
+                  <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-[#003d78] text-[10px] font-black text-white">
+                    AI
+                  </div>
+                )}
+                <div className={`flex max-w-[80%] flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div
+                    className={`whitespace-pre-wrap rounded-[18px] px-3 py-2 text-xs leading-5 shadow-sm ${
+                      msg.role === 'user'
+                        ? 'rounded-br-sm bg-[#0055a6] text-white'
+                        : 'rounded-bl-sm border border-[#d9e4ef] bg-white text-[#1f384c]'
+                    }`}
+                  >
+                    {msg.content || (
+                      <span className="flex items-center gap-1 px-1 py-0.5 text-slate-400">
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:0ms]" />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:150ms]" />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:300ms]" />
+                      </span>
+                    )}
+                  </div>
+                  {msg.role === 'assistant' && msg.toolCalls && msg.toolCalls.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                      {msg.toolCalls.map((tool) => (
+                        <span
+                          key={tool}
+                          className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${AGENT_COLORS[tool] ?? 'border-slate-200 bg-slate-100 text-slate-600'}`}
+                        >
+                          {AGENT_LABELS[tool] ?? tool}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            <div ref={bottomRef} />
+          </div>
+        </div>
 
         {/* Input bar — wired in Task 5 */}
       </div>
