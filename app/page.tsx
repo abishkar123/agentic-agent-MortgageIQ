@@ -197,7 +197,42 @@ export default function Home() {
         <p className="text-sm text-[#6a8195]">Your virtual lending specialist</p>
       </div>
 
-      {/* Launcher button — wired in Task 2 */}
+      {/* Launcher button */}
+      <button
+        onClick={() => setIsOpen((o) => !o)}
+        className="fixed bottom-6 right-6 z-50 grid h-14 w-14 place-items-center rounded-full bg-[#0055a6] shadow-xl shadow-blue-900/30 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#b9daf4]"
+        aria-label={isOpen ? 'Close chat' : 'Open chat'}
+      >
+        <span className="relative grid h-14 w-14 place-items-center">
+          <span className="absolute right-0.5 top-0.5 h-3.5 w-3.5 rounded-full border-2 border-[#0055a6] bg-[#4caf50]" />
+          <svg
+            className={`absolute transition-all duration-150 ${isOpen ? 'scale-50 opacity-0' : 'scale-100 opacity-100'}`}
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
+              fill="white"
+            />
+          </svg>
+          <svg
+            className={`absolute transition-all duration-150 ${isOpen ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </span>
+      </button>
+
       {/* Chat panel — wired in Task 3 */}
     </div>
   )
