@@ -18,7 +18,7 @@ To run the eval harness meaningfully, `GROQ_API_KEY` and `OPENAI_API_KEY` must b
 
 ## Architecture
 
-This is a **multi-agent mortgage assistant** built with Mastra (TypeScript agent framework) on Next.js 15. The orchestrator runs on **OpenAI gpt-4o**; all sub-agents run on **OpenAI gpt-4o-mini**. Design rationale: `docs/multi_agent_orchestration_design.md`.
+This is a **multi-agent mortgage assistant** built with Mastra (TypeScript agent framework) on Next.js 15. The main orchestrator agent runs on **OpenAI**; all sub-agents run on **Groq**. Design rationale: `docs/multi_agent_orchestration_design.md`.
 
 ### Request path
 
@@ -42,12 +42,12 @@ POST /api/chat  (app/api/chat/route.ts)
 | Agent | Model | Tools | Role |
 |---|---|---|---|
 | `orchestratorAgent` | OpenAI gpt-4o (env `OPENAI_MODEL`) | delegate tools + escalate | Main agent — routing + synthesis (live path + evals) |
-| `faqAgent` | OpenAI gpt-4o-mini | `knowledgeSearchTool` | Answers product/policy/education questions |
-| `calculatorAgent` | OpenAI gpt-4o-mini | repayment, LVR, borrowing capacity tools | Numerical mortgage calculations |
-| `eligibilityAgent` | OpenAI gpt-4o-mini | `eligibilityCheckTool` | Preliminary eligibility assessment |
-| `websiteAgent` | OpenAI gpt-4o-mini | `websiteFetchTool` | Answers from live website content (env `WEBSITE_BASE_URL`); fetch is SSRF-guarded to that host |
-| `generalAgent` | OpenAI gpt-4o-mini | none | Off-topic/general questions — never quotes products, rates, or eligibility rules |
-| `complianceAgent` | OpenAI gpt-4o-mini | none | NCCP/APRA/DDO review — called via `src/lib/compliance.ts`, never as an orchestrator tool |
+| `faqAgent` | Groq llama-3.3-70b-versatile | `knowledgeSearchTool` | Answers product/policy/education questions |
+| `calculatorAgent` | Groq llama-3.1-8b-instant | repayment, LVR, borrowing capacity tools | Numerical mortgage calculations |
+| `eligibilityAgent` | Groq llama-3.1-8b-instant | `eligibilityCheckTool` | Preliminary eligibility assessment |
+| `websiteAgent` | Groq llama-3.3-70b-versatile | `websiteFetchTool` | Answers from live website content (env `WEBSITE_BASE_URL`); fetch is SSRF-guarded to that host |
+| `generalAgent` | Groq llama-3.3-70b-versatile | none | Off-topic/general questions — never quotes products, rates, or eligibility rules |
+| `complianceAgent` | Groq llama-3.1-8b-instant | none | NCCP/APRA/DDO review — called via `src/lib/compliance.ts`, never as an orchestrator tool |
 
 ### Knowledge source (`src/data/knowledge.ts` + `src/tools/knowledge.ts`)
 

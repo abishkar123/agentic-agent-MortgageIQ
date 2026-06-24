@@ -1,5 +1,5 @@
 import { Agent } from '@mastra/core/agent'
-import { openai } from '@ai-sdk/openai'
+import { groq } from '@ai-sdk/groq'
 import { knowledgeSearchTool } from '../tools/knowledge'
 import { repaymentCalculatorTool, lvrCalculatorTool, borrowingCapacityTool } from '../tools/calculator'
 import { eligibilityCheckTool } from '../tools/eligibility'
@@ -23,7 +23,7 @@ search results. Do not reference a "knowledge base" or "search results" in your 
 answer naturally as a specialist would.
 
 Always end with a brief note: "For personalised advice, speak with a Mortgage House broker on 133 144."`,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.3-70b-versatile'),
   tools: { knowledgeSearchTool },
 })
 
@@ -38,7 +38,7 @@ After calculating, briefly explain what the numbers mean in plain English — in
 change them (e.g. rate movements, shorter term).
 
 Note that all figures are estimates — final rates depend on lender assessment.`,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.1-8b-instant'),
   tools: { repaymentCalculatorTool, lvrCalculatorTool, borrowingCapacityTool },
 })
 
@@ -53,7 +53,7 @@ Be encouraging but honest about potential obstacles.
 If the tool flags requiresHumanReview: true, strongly recommend the user speak with a broker.
 Never make unconditional guarantees about loan approval.
 Always close with: "These are indicative assessments only — speak with a Mortgage House broker on 133 144 for a full assessment."`,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.1-8b-instant'),
   tools: { eligibilityCheckTool },
 })
 
@@ -70,7 +70,7 @@ Answer only from the fetched content — never invent page content, rates, or of
 Quote rates, fees, and offers exactly as shown, and note they are taken from the website
 and may change. If the information can't be found on the website (or pages fail to load),
 say so honestly and suggest calling Mortgage House on 133 144.`,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.3-70b-versatile'),
   tools: { websiteFetchTool },
 })
 
@@ -88,7 +88,7 @@ Rules:
 - Never give personalised financial, legal, or tax advice. For anything that depends on the
   user's personal circumstances, suggest speaking with a qualified professional.
 - After answering, gently steer the conversation back to how you can help with home loans.`,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.3-70b-versatile'),
   tools: {},
 })
 
@@ -111,6 +111,6 @@ STRICT RULES — never break these:
 - Never write "Note:", "I changed", "I added", "The original response", or any explanation.
 - Never add commentary before or after the response text.
 - Your entire output must be: the word COMPLIANT on its own line, then the response, nothing else.`,
-  model: openai('gpt-4o-mini'),
+  model: groq('llama-3.1-8b-instant'),
   tools: {},
 })
